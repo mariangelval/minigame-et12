@@ -1,131 +1,69 @@
-document.addEventListener("DOMContentLoaded", () => {
-    createSquares();
-    getNewWord();
+<!DOCTYPE html>
+<html lang="en">
 
-    let guessedWords = [[]];
-    let availableSpace = 1;
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wordle Clone!</title>
 
-    let word;
-    let guessedWordCount = 0;
+    <script src="tecdle.js"></script>
 
-    const keys = document.querySelectorAll(".keyboard-row button");
+    <link rel="stylesheet" href="tecdle.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+</head>
 
-    // Banco de palabras
-    const wordBank = ["apple", "baker", "crazy", "drive", "eagle", "flame", "grape", "house", "image", "joker"];
+<body>
+    <div id="container">
+        <div id="game">
+            <header>
+                <h1 class="title">WORDLE</h1>
+            </header>
 
-    function getNewWord() {
-        // Selecciona una palabra al azar del banco de palabras
-        word = wordBank[Math.floor(Math.random() * wordBank.length)];
-        console.log(word); // Para ver la palabra en la consola mientras pruebas el juego
-    }
+            <div id="board-container">
+                <div id="board"></div>
+            </div>
 
-    function getCurrentWordArr() {
-        const numberOfGuessedWords = guessedWords.length;
-        return guessedWords[numberOfGuessedWords - 1];
-    }
+            <div id="keyboard-container">
+                <div class="keyboard-row">
+                    <button data-key="q">q</button>
+                    <button data-key="w">w</button>
+                    <button data-key="e">e</button>
+                    <button data-key="r">r</button>
+                    <button data-key="t">t</button>
+                    <button data-key="y">y</button>
+                    <button data-key="u">u</button>
+                    <button data-key="i">i</button>
+                    <button data-key="o">o</button>
+                    <button data-key="p">p</button>
+                </div>
+                <div class="keyboard-row">
+                    <div class="spacer-half"></div>
+                    <button data-key="a">a</button>
+                    <button data-key="s">s</button>
+                    <button data-key="d">d</button>
+                    <button data-key="f">f</button>
+                    <button data-key="g">g</button>
+                    <button data-key="h">h</button>
+                    <button data-key="j">j</button>
+                    <button data-key="k">k</button>
+                    <button data-key="l">l</button>
+                    <div class="spacer-half"></div>
+                </div>
+                <div class="keyboard-row">
+                    <button data-key="enter" class="wide-button">Enter</button>
+                    <button data-key="z">z</button>
+                    <button data-key="x">x</button>
+                    <button data-key="c">c</button>
+                    <button data-key="v">v</button>
+                    <button data-key="b">b</button>
+                    <button data-key="n">n</button>
+                    <button data-key="m">m</button>
+                    <button data-key="del" class="wide-button">Del</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
 
-    function updateGuessedWords(letter) {
-        const currentWordArr = getCurrentWordArr();
-
-        if (currentWordArr && currentWordArr.length < 5) {
-            currentWordArr.push(letter);
-
-            const availableSpaceEl = document.getElementById(String(availableSpace));
-
-            availableSpace = availableSpace + 1;
-            availableSpaceEl.textContent = letter;
-        }
-    }
-
-    function getTileColor(letter, index) {
-        const isCorrectLetter = word.includes(letter);
-
-        if (!isCorrectLetter) {
-            return "rgb(58, 58, 60)";
-        }
-
-        const letterInThatPosition = word.charAt(index);
-        const isCorrectPosition = letter === letterInThatPosition;
-
-        if (isCorrectPosition) {
-            return "rgb(83, 141, 78)";
-        }
-
-        return "rgb(181, 159, 59)";
-    }
-
-    function handleSubmitWord() {
-        const currentWordArr = getCurrentWordArr();
-        if (currentWordArr.length !== 5) {
-            window.alert("Word must be 5 letters");
-            return;
-        }
-
-        const currentWord = currentWordArr.join("");
-
-        if (currentWord !== word && guessedWords.length === 6) {
-            window.alert(`Sorry, you have no more guesses! The word is ${word}.`);
-        } else if (currentWord === word) {
-            window.alert("Congratulations!");
-        }
-
-        const firstLetterId = guessedWordCount * 5 + 1;
-        const interval = 200;
-        currentWordArr.forEach((letter, index) => {
-            setTimeout(() => {
-                const tileColor = getTileColor(letter, index);
-
-                const letterId = firstLetterId + index;
-                const letterEl = document.getElementById(letterId);
-                letterEl.classList.add("animate__flipInX");
-                letterEl.style = `background-color:${tileColor};border-color:${tileColor}`;
-            }, interval * index);
-        });
-
-        guessedWordCount += 1;
-
-        guessedWords.push([]);
-    }
-
-    function createSquares() {
-        const gameBoard = document.getElementById("board");
-
-        for (let index = 0; index < 30; index++) {
-            let square = document.createElement("div");
-            square.classList.add("square");
-            square.classList.add("animate__animated");
-            square.setAttribute("id", index + 1);
-            gameBoard.appendChild(square);
-        }
-    }
-
-    function handleDeleteLetter() {
-        const currentWordArr = getCurrentWordArr();
-        const removedLetter = currentWordArr.pop();
-
-        guessedWords[guessedWords.length - 1] = currentWordArr;
-
-        const lastLetterEl = document.getElementById(String(availableSpace - 1));
-
-        lastLetterEl.textContent = "";
-        availableSpace = availableSpace - 1;
-    }
-
-    for (let i = 0; i < keys.length; i++) {
-        keys[i].onclick = ({ target }) => {
-            const letter = target.getAttribute("data-key");
-
-            if (letter === "enter") {
-                handleSubmitWord();
-                return;
-            }
-
-            if (letter === "del") {
-                handleDeleteLetter();
-                return;
-            }
-
-            updateGuessedWords(letter);
-        };
-    }
-});
+</html>
